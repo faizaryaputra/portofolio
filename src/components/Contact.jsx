@@ -1,20 +1,20 @@
+// src/components/Contact.jsx
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaGithub, 
-  FaInstagram, 
+import {
+  FaGithub,
+  FaInstagram,
   FaLinkedin,
-  FaTiktok, 
-  FaPaperPlane, 
-  FaUser, 
-  FaEnvelope, 
-  FaComment, 
+  FaPaperPlane,
+  FaUser,
+  FaEnvelope,
+  FaComment,
   FaCamera,
   FaHeart,
   FaReply,
-  FaTrash,
   FaCog,
-  FaWhatsapp
+  FaWhatsapp,
+  FaTrash, // <-- tambah ikon hapus
 } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 import AdminMessages from './AdminMessages';
@@ -22,119 +22,191 @@ import AdminLogin from './AdminLogin';
 import './Contact.css';
 import { useAdmin } from '../contexts/AdminContext';
 
-// JSON file untuk menyimpan comments
-const COMMENTS_FILE = '/comments.json';
+import { db, storage } from '../firebaseConfig';
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+  doc,
+  increment,
+  serverTimestamp,
+  deleteDoc, // <-- import untuk hapus
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const Contact = () => {
-  // States untuk contact form
-  const [contactForm, setContactForm] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
+  // Contact form
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
 
-  // States untuk comments
+  // Comment form
   const [commentForm, setCommentForm] = useState({
     name: '',
     message: '',
     photo: null,
-    photoPreview: null
+    photoPreview: null,
   });
   const [comments, setComments] = useState([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+
+  // Admin modal states
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-
   const { isAuthenticated } = useAdmin();
 
-  // Load comments dari localStorage (simulasi JSON file)
-  useEffect(() => {
-    const savedComments = localStorage.getItem('portfolioComments');
-    if (savedComments) {
-      setComments(JSON.parse(savedComments));
+  // Deleting state (untuk tombol hapus)
+  const [deletingId, setDeletingId] = useState(null);
+
+  // ===== Helpers =====
+  const formatTimestamp = (ts) => {
+    try {
+      let d;
+      if (!ts) return 'Baru saja';
+      if (typeof ts === 'string' || typeof ts === 'number') d = new Date(ts);
+      else if (ts.toDate) d = ts.toDate();
+      else if (ts.seconds) d = new Date(ts.seconds * 1000);
+      else d = new Date();
+
+      return d.toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return 'Baru saja';
     }
+  };
+
+  // ===== Realtime comments from Firestore =====
+  useEffect(() => {
+    const q = query(collection(db, 'comments'), orderBy('timestamp', 'desc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setComments(list);
+      },
+      (err) => {
+        console.error('Firestore listen error:', err);
+      }
+    );
+    return () => unsub();
   }, []);
 
-  // Handle contact form
+  // ===== Contact form (localStorage seperti versi kamu) =====
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingContact(true);
-    
-    // Save message to localStorage (simulasi JSON file)
-    const newMessage = {
-      id: Date.now(),
-      name: contactForm.name,
-      email: contactForm.email,
-      message: contactForm.message,
-      timestamp: new Date().toISOString(),
-      status: 'unread'
-    };
 
-    const savedMessages = localStorage.getItem('portfolioContactMessages');
-    const messages = savedMessages ? JSON.parse(savedMessages) : [];
-    const updatedMessages = [newMessage, ...messages];
-    localStorage.setItem('portfolioContactMessages', JSON.stringify(updatedMessages));
-    
-    // Simulasi pengiriman email
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    alert('Pesan berhasil dikirim! Terima kasih telah menghubungi saya.');
-    setContactForm({ name: '', email: '', message: '' });
-    setIsSubmittingContact(false);
-  };
-
-  // Handle photo upload
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setCommentForm(prev => ({
-          ...prev,
-          photo: file,
-          photoPreview: reader.result
-        }));
+    try {
+      const newMessage = {
+        id: Date.now(),
+        name: contactForm.name,
+        email: contactForm.email,
+        message: contactForm.message,
+        timestamp: new Date().toISOString(),
+        status: 'unread',
       };
-      reader.readAsDataURL(file);
+
+      const saved = localStorage.getItem('portfolioContactMessages');
+      const messages = saved ? JSON.parse(saved) : [];
+      localStorage.setItem('portfolioContactMessages', JSON.stringify([newMessage, ...messages]));
+
+      // Simulasi kirim email
+      await new Promise((r) => setTimeout(r, 1500));
+
+      alert('Pesan berhasil dikirim! Terima kasih telah menghubungi saya.');
+      setContactForm({ name: '', email: '', message: '' });
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengirim pesan. Coba lagi ya.');
+    } finally {
+      setIsSubmittingContact(false);
     }
   };
 
-  // Handle comment submit
-  const handleCommentSubmit = (e) => {
+  // ===== Upload preview photo =====
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCommentForm((prev) => ({ ...prev, photo: file, photoPreview: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // ===== Submit comment to Firestore =====
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentForm.name.trim() || !commentForm.message.trim()) return;
 
     setIsSubmittingComment(true);
 
-    const newComment = {
-      id: Date.now(),
-      name: commentForm.name,
-      message: commentForm.message,
-      photo: commentForm.photoPreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(commentForm.name)}&background=00ffdc&color=000754&size=100`,
-      timestamp: new Date().toISOString(),
-      likes: 0
-    };
+    try {
+      // Default avatar
+      let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        commentForm.name
+      )}&background=00ffdc&color=000754&size=100`;
 
-    const updatedComments = [newComment, ...comments];
-    setComments(updatedComments);
-    localStorage.setItem('portfolioComments', JSON.stringify(updatedComments));
-    
-    setCommentForm({ name: '', message: '', photo: null, photoPreview: null });
-    setIsSubmittingComment(false);
+      // Upload ke Storage bila ada file
+      if (commentForm.photo) {
+        const path = `comments/${Date.now()}-${commentForm.photo.name}`;
+        const photoRef = ref(storage, path);
+        await uploadBytes(photoRef, commentForm.photo);
+        photoURL = await getDownloadURL(photoRef);
+      }
+
+      await addDoc(collection(db, 'comments'), {
+        name: commentForm.name,
+        message: commentForm.message,
+        photo: photoURL,
+        likes: 0,
+        timestamp: serverTimestamp(),
+      });
+
+      setCommentForm({ name: '', message: '', photo: null, photoPreview: null });
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengirim komentar. Coba lagi ya.');
+    } finally {
+      setIsSubmittingComment(false);
+    }
   };
 
-  // Handle like comment
-  const handleLikeComment = (commentId) => {
-    const updatedComments = comments.map(comment => 
-      comment.id === commentId 
-        ? { ...comment, likes: comment.likes + 1 }
-        : comment
-    );
-    setComments(updatedComments);
-    localStorage.setItem('portfolioComments', JSON.stringify(updatedComments));
+  // ===== Like comment (increment) =====
+  const handleLikeComment = async (commentId) => {
+    try {
+      const refDoc = doc(db, 'comments', commentId);
+      await updateDoc(refDoc, { likes: increment(1) });
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menyukai komentar. Coba lagi ya.');
+    }
   };
 
+  // ===== Delete comment (admin only) =====
+  const handleDeleteComment = async (commentId) => {
+    if (!isAuthenticated) return; // guard di UI
+    const ok = window.confirm('Hapus komentar ini? Tindakan tidak bisa dibatalkan.');
+    if (!ok) return;
+
+    try {
+      setDeletingId(commentId);
+      await deleteDoc(doc(db, 'comments', commentId));
+      // Tidak perlu setComments manual, karena onSnapshot akan update otomatis
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menghapus komentar. Coba lagi ya.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const socialLinks = [
     {
@@ -142,43 +214,43 @@ const Contact = () => {
       icon: <FaGithub />,
       url: 'https://github.com/faizaryaputra',
       color: 'from-gray-600 to-gray-800',
-      hoverColor: 'hover:shadow-gray-500/25'
+      hoverColor: 'hover:shadow-gray-500/25',
     },
     {
       name: 'Whatsapp',
       icon: <FaWhatsapp />,
       url: 'https://wa.me/6285748522497?text=Halo%2C%20saya%20tertarik%20dengan%20portofolio%20Anda.',
       color: 'from-green-500 to-cyan-500',
-      hoverColor: 'hover:shadow-pink-500/25'
+      hoverColor: 'hover:shadow-pink-500/25',
     },
     {
       name: 'Instagram',
       icon: <FaInstagram />,
       url: 'https://instagram.com/faizz5z',
       color: 'from-pink-500 to-purple-600',
-      hoverColor: 'hover:shadow-pink-500/25'
+      hoverColor: 'hover:shadow-pink-500/25',
     },
     {
       name: 'LinkedIn',
       icon: <FaLinkedin />,
       url: 'https://linkedin.com/in/faiz-arya-putra-8527542a0',
       color: 'from-blue-600 to-blue-800',
-      hoverColor: 'hover:shadow-blue-500/25'
+      hoverColor: 'hover:shadow-blue-500/25',
     },
     {
       name: 'TikTok',
       icon: <SiTiktok />,
       url: 'https://tiktok.com/@5zclipper',
       color: 'from-black to-red-600',
-      hoverColor: 'hover:shadow-red-500/25'
-    }
+      hoverColor: 'hover:shadow-red-500/25',
+    },
   ];
 
   return (
     <section id="contact" className="py-20 px-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/20 via-transparent to-orange-900/10"></div>
-      
+
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 w-20 h-20 bg-orange-500/10 rounded-full blur-xl animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-xl animate-pulse delay-1000"></div>
@@ -190,46 +262,38 @@ const Contact = () => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
           className="text-center mb-20 relative"
         >
           <h2 className="text-5xl md:text-6xl font-bold font-moderniz mb-4">
-            <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 bg-clip-text text-transparent">
-              GET IN
-            </span>
-            {' '}
+            <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 bg-clip-text text-transparent">GET IN</span>{' '}
             <span className="text-white">TOUCH</span>
           </h2>
-          <p className="text-xl text-slate-400 font-cascadia">
-            Mari berkolaborasi dan ciptakan sesuatu yang amazing!
-          </p>
-          
-          {/* Admin Button - positioned top right */}
+          <p className="text-xl text-slate-400 font-cascadia">Mari berkolaborasi dan ciptakan sesuatu yang amazing!</p>
+
+          {/* Admin Button */}
           <button
             onClick={() => {
-              if (isAuthenticated) {
-                setIsAdminOpen(true);
-              } else {
-                setIsLoginOpen(true);
-              }
+              if (isAuthenticated) setIsAdminOpen(true);
+              else setIsLoginOpen(true);
             }}
             className="absolute top-0 right-0 bg-slate-800/50 hover:bg-slate-700/50 backdrop-blur-sm p-3 rounded-full border border-slate-600/50 hover:border-orange-400/50 transition-all duration-300 group"
-            title={isAuthenticated ? "Admin Panel" : "Admin Login"}
+            title={isAuthenticated ? 'Admin Panel' : 'Admin Login'}
           >
             <FaCog className="text-slate-400 group-hover:text-orange-400 transition-colors duration-300 group-hover:rotate-90" />
           </button>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
-          {/* Left Side - Contact Form & Social */}
+          {/* Left - Contact & Social */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             className="space-y-8"
           >
-            {/* Contact Form Panel */}
+            {/* Contact Form */}
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-yellow-400 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
               <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50">
@@ -251,7 +315,7 @@ const Contact = () => {
                         type="text"
                         placeholder="Nama Anda"
                         value={contactForm.name}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) => setContactForm((prev) => ({ ...prev, name: e.target.value }))}
                         className="w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 transition-all duration-300"
                         required
                       />
@@ -265,7 +329,7 @@ const Contact = () => {
                         type="email"
                         placeholder="Email Anda"
                         value={contactForm.email}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) => setContactForm((prev) => ({ ...prev, email: e.target.value }))}
                         className="w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 transition-all duration-300"
                         required
                       />
@@ -279,7 +343,7 @@ const Contact = () => {
                         placeholder="Pesan Anda"
                         rows="4"
                         value={contactForm.message}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                        onChange={(e) => setContactForm((prev) => ({ ...prev, message: e.target.value }))}
                         className="w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20 transition-all duration-300 resize-none"
                         required
                       ></textarea>
@@ -313,7 +377,7 @@ const Contact = () => {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
             </div>
 
-            {/* Social Media Panel */}
+            {/* Social Media */}
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
               <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50">
@@ -332,9 +396,7 @@ const Contact = () => {
                       whileHover={{ scale: 1.02, x: 10 }}
                       className={`group flex items-center gap-4 p-4 bg-gradient-to-r ${social.color} rounded-xl text-white transition-all duration-300 ${social.hoverColor} hover:shadow-xl`}
                     >
-                      <div className="text-2xl group-hover:scale-110 transition-transform duration-300">
-                        {social.icon}
-                      </div>
+                      <div className="text-2xl group-hover:scale-110 transition-transform duration-300">{social.icon}</div>
                       <div className="flex-1">
                         <span className="font-semibold">{social.name}</span>
                         <p className="text-sm opacity-90">Follow me on {social.name}</p>
@@ -349,15 +411,15 @@ const Contact = () => {
             </div>
           </motion.div>
 
-          {/* Right Side - Comments System */}
+          {/* Right - Comments */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             className="space-y-8"
           >
-            {/* Comment Form Panel */}
+            {/* Comment Form */}
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-red-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
               <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50">
@@ -386,12 +448,7 @@ const Contact = () => {
                         </div>
                         <label className="absolute -bottom-2 -right-2 bg-orange-600 text-white p-2 rounded-full cursor-pointer hover:bg-orange-500 transition-colors duration-300">
                           <FaCamera className="text-sm" />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoUpload}
-                            className="hidden"
-                          />
+                          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                         </label>
                       </div>
                     </div>
@@ -400,7 +457,7 @@ const Contact = () => {
                         type="text"
                         placeholder="Your Name"
                         value={commentForm.name}
-                        onChange={(e) => setCommentForm(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) => setCommentForm((prev) => ({ ...prev, name: e.target.value }))}
                         className="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-300"
                         required
                       />
@@ -408,7 +465,7 @@ const Contact = () => {
                         placeholder="Write your comment..."
                         rows="3"
                         value={commentForm.message}
-                        onChange={(e) => setCommentForm(prev => ({ ...prev, message: e.target.value }))}
+                        onChange={(e) => setCommentForm((prev) => ({ ...prev, message: e.target.value }))}
                         className="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-300 resize-none"
                         required
                       ></textarea>
@@ -441,7 +498,7 @@ const Contact = () => {
                 <FaComment className="text-orange-400" />
                 Comments ({comments.length})
               </h4>
-              
+
               <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
                 <AnimatePresence>
                   {comments.map((comment, index) => (
@@ -453,9 +510,30 @@ const Contact = () => {
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       className="group relative bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30 hover:border-orange-400/30 transition-all duration-300"
                     >
+                      {/* Tombol hapus (admin only) */}
+                      {isAuthenticated && (
+                        <button
+                          onClick={() => handleDeleteComment(comment.id)}
+                          disabled={deletingId === comment.id}
+                          title="Hapus komentar"
+                          className="absolute top-3 right-3 p-2 rounded-lg border border-slate-600/50 text-slate-400 hover:text-red-400 hover:border-red-400/50 transition-all disabled:opacity-50"
+                        >
+                          {deletingId === comment.id ? (
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <FaTrash />
+                          )}
+                        </button>
+                      )}
+
                       <div className="flex gap-4">
-                        <img 
-                          src={comment.photo} 
+                        <img
+                          src={
+                            comment.photo ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              comment.name || 'User'
+                            )}&background=00ffdc&color=000754&size=100`
+                          }
                           alt={comment.name}
                           className="w-12 h-12 rounded-full object-cover border-2 border-slate-600"
                         />
@@ -463,15 +541,7 @@ const Contact = () => {
                           <div className="flex items-start justify-between">
                             <div>
                               <h5 className="font-semibold text-white">{comment.name}</h5>
-                              <p className="text-xs text-slate-400">
-                                {new Date(comment.timestamp).toLocaleDateString('id-ID', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </p>
+                              <p className="text-xs text-slate-400">{formatTimestamp(comment.timestamp)}</p>
                             </div>
                           </div>
                           <p className="text-slate-300 mt-2 leading-relaxed">{comment.message}</p>
@@ -481,7 +551,7 @@ const Contact = () => {
                               className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors duration-300 group/like"
                             >
                               <FaHeart className="group-hover/like:scale-110 transition-transform duration-300" />
-                              <span className="text-sm">{comment.likes}</span>
+                              <span className="text-sm">{comment.likes || 0}</span>
                             </button>
                           </div>
                         </div>
@@ -489,7 +559,7 @@ const Contact = () => {
                     </motion.div>
                   ))}
                 </AnimatePresence>
-                
+
                 {comments.length === 0 && (
                   <div className="text-center py-12 text-slate-400">
                     <FaComment className="text-4xl mx-auto mb-4 opacity-50" />
@@ -502,14 +572,12 @@ const Contact = () => {
         </div>
       </div>
 
-      {/* Admin Messages Modal */}
+      {/* Admin Modals */}
       <AnimatePresence>
-        {isAdminOpen && (
-          <AdminMessages 
-            isOpen={isAdminOpen}
-            onClose={() => setIsAdminOpen(false)}
-          />
-        )}
+        {isAdminOpen && <AdminMessages isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isLoginOpen && <AdminLogin isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />}
       </AnimatePresence>
     </section>
   );

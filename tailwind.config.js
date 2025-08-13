@@ -1,3 +1,4 @@
+// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -13,7 +14,7 @@ export default {
       animation: {
         shadowFade: 'shadowFade 5s infinite ease-in-out',
         gradient: 'gradient 8s linear infinite',
-        'gradient-x': 'gradient-x 3s ease infinite', // animasi teks
+        'gradient-x': 'gradient-x 3s ease infinite',
       },
       keyframes: {
         shadowFade: {
@@ -25,12 +26,14 @@ export default {
           '50%': { backgroundPosition: '100% 50%' },
           '100%': { backgroundPosition: '0% 50%' },
         },
-        'gradient-x': { // ← ini tambahan pentingnya
+        'gradient-x': {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/line-clamp'), // ← Tambahkan ini
+  ],
 }

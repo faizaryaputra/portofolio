@@ -277,15 +277,13 @@ const AdminMessages = ({ isOpen, onClose }) => {
         </div>
       </motion.div>
 
-      {/* Custom Styles */}
-      <style jsx>{`
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
+      {selectedMessage && (
+  <p className="text-slate-300 text-sm line-clamp-2">
+    {selectedMessage.message}
+  </p>
+)}
+
+
     </motion.div>
   );
 };
