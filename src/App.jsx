@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from 'react'; // Impor useState
-import './app.css';
+import './App.css';
 import ChatWidget from "./components/ChatWidget";
 import ChatPage from "./components/ChatPage";
 import Header from './components/Header';
