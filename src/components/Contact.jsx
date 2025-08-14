@@ -1,5 +1,5 @@
 // src/components/Contact.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaGithub,
@@ -14,7 +14,7 @@ import {
   FaReply,
   FaCog,
   FaWhatsapp,
-  FaTrash, // <-- tambah ikon hapus
+  FaTrash,
 } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 import AdminMessages from './AdminMessages';
@@ -22,7 +22,7 @@ import AdminLogin from './AdminLogin';
 import './Contact.css';
 import { useAdmin } from '../contexts/AdminContext';
 
-import { db, storage } from '../firebaseConfig';
+import { db } from '../firebaseConfig'; // ⬅️ Hapus `storage`, kita tidak pakai Firebase Storage lagi
 import {
   collection,
   addDoc,
@@ -33,11 +33,20 @@ import {
   doc,
   increment,
   serverTimestamp,
-  deleteDoc, // <-- import untuk hapus
+  deleteDoc,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const Contact = () => {
+// =============================
+// Cloudinary Config (frontend)
+// =============================
+// Disarankan pindahkan ke .env.local dengan prefix NEXT_PUBLIC_
+// NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dy5ousfah
+// NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=faizaryaputra_upload
+const CLOUDINARY_CLOUD_NAME = 'dy5ousfah';
+const CLOUDINARY_UPLOAD_PRESET = 'faizaryaputra_upload';
+const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+export default function Contact() {
   // Contact form
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
@@ -49,6 +58,9 @@ const Contact = () => {
     photo: null,
     photoPreview: null,
   });
+  const fileInputRef = useRef(null);
+  const [uploadError, setUploadError] = useState(null);
+
   const [comments, setComments] = useState([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
@@ -80,6 +92,21 @@ const Contact = () => {
     } catch {
       return 'Baru saja';
     }
+  };
+
+  // Optimasi thumbnail Cloudinary (opsional)
+  const cldThumb = (url, transform = 'f_auto,q_auto,c_fill,w_96,h_96,r_max') => {
+    if (!url || !url.includes('/upload/')) return url;
+    return url.replace('/upload/', `/upload/${transform}/`);
+  };
+
+  // Validasi file gambar
+  const validateImage = (file) => {
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+    const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (!ALLOWED.includes(file.type)) return 'Format file harus JPG, PNG, atau WEBP.';
+    if (file.size > MAX_SIZE) return 'Ukuran gambar maksimal 5MB.';
+    return null;
   };
 
   // ===== Realtime comments from Firestore =====
@@ -133,12 +160,42 @@ const Contact = () => {
   // ===== Upload preview photo =====
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0];
+    setUploadError(null);
     if (!file) return;
+
+    const err = validateImage(file);
+    if (err) {
+      setUploadError(err);
+      // reset input & state
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setCommentForm((prev) => ({ ...prev, photo: null, photoPreview: null }));
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       setCommentForm((prev) => ({ ...prev, photo: file, photoPreview: reader.result }));
     };
     reader.readAsDataURL(file);
+  };
+
+  // ===== Upload file ke Cloudinary (unsigned) =====
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.secure_url) {
+      const msg = data?.error?.message || 'Upload ke Cloudinary gagal.';
+      throw new Error(msg);
+    }
+    return data.secure_url; // URL gambar yang aman (https)
   };
 
   // ===== Submit comment to Firestore =====
@@ -154,12 +211,9 @@ const Contact = () => {
         commentForm.name
       )}&background=00ffdc&color=000754&size=100`;
 
-      // Upload ke Storage bila ada file
+      // Upload ke Cloudinary bila ada file
       if (commentForm.photo) {
-        const path = `comments/${Date.now()}-${commentForm.photo.name}`;
-        const photoRef = ref(storage, path);
-        await uploadBytes(photoRef, commentForm.photo);
-        photoURL = await getDownloadURL(photoRef);
+        photoURL = await uploadToCloudinary(commentForm.photo);
       }
 
       await addDoc(collection(db, 'comments'), {
@@ -170,20 +224,30 @@ const Contact = () => {
         timestamp: serverTimestamp(),
       });
 
+      // Reset form
       setCommentForm({ name: '', message: '', photo: null, photoPreview: null });
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
       console.error(err);
-      alert('Gagal mengirim komentar. Coba lagi ya.');
+      alert(`Gagal mengirim komentar: ${err.message}`);
     } finally {
       setIsSubmittingComment(false);
     }
   };
 
-  // ===== Like comment (increment) =====
+  // ===== Like comment (increment + sederhana anti-spam per browser) =====
   const handleLikeComment = async (commentId) => {
     try {
+      // Cegah like berulang dari user yang sama (per browser)
+      const key = 'liked_comment_ids';
+      const liked = JSON.parse(localStorage.getItem(key) || '[]');
+      if (liked.includes(commentId)) return; // sudah like
+
       const refDoc = doc(db, 'comments', commentId);
       await updateDoc(refDoc, { likes: increment(1) });
+
+      const updated = Array.from(new Set([...liked, commentId]));
+      localStorage.setItem(key, JSON.stringify(updated));
     } catch (err) {
       console.error(err);
       alert('Gagal menyukai komentar. Coba lagi ya.');
@@ -199,7 +263,7 @@ const Contact = () => {
     try {
       setDeletingId(commentId);
       await deleteDoc(doc(db, 'comments', commentId));
-      // Tidak perlu setComments manual, karena onSnapshot akan update otomatis
+      // onSnapshot akan update otomatis
     } catch (err) {
       console.error(err);
       alert('Gagal menghapus komentar. Coba lagi ya.');
@@ -448,9 +512,18 @@ const Contact = () => {
                         </div>
                         <label className="absolute -bottom-2 -right-2 bg-orange-600 text-white p-2 rounded-full cursor-pointer hover:bg-orange-500 transition-colors duration-300">
                           <FaCamera className="text-sm" />
-                          <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            onChange={handlePhotoUpload}
+                            className="hidden"
+                          />
                         </label>
                       </div>
+                      {uploadError && (
+                        <p className="mt-2 text-xs text-red-400 max-w-[12rem]">{uploadError}</p>
+                      )}
                     </div>
                     <div className="flex-1 space-y-4">
                       <input
@@ -529,13 +602,16 @@ const Contact = () => {
                       <div className="flex gap-4">
                         <img
                           src={
-                            comment.photo ||
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                              comment.name || 'User'
-                            )}&background=00ffdc&color=000754&size=100`
+                            comment.photo
+                              ? cldThumb(comment.photo)
+                              : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                  comment.name || 'User'
+                                )}&background=00ffdc&color=000754&size=100`
                           }
                           alt={comment.name}
                           className="w-12 h-12 rounded-full object-cover border-2 border-slate-600"
+                          loading="lazy"
+                          decoding="async"
                         />
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
@@ -581,6 +657,4 @@ const Contact = () => {
       </AnimatePresence>
     </section>
   );
-};
-
-export default Contact;
+}
