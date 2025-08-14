@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 // Definisikan teks yang akan ditampilkan secara bergantian
-const TEXTS_TO_TYPE = ["Front End Developer", "3D Designer", 'Back End Developer', 'Full Stack Developer' ];
+const TEXTS_TO_TYPE = ["Front End Developer", "Designer", 'Back End Developer', 'Full Stack Developer' ];
 
 // Komponen utama
 export default function LoopingGradientText({

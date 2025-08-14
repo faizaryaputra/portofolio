@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth"; // ✅ Tambahkan import auth
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfRixhpWYFuGYrFsj0AY958EqUD8SjzVU",
@@ -17,9 +18,10 @@ const firebaseConfig = {
 // Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 
-// Inisialisasi Firestore dan Storage
+// Inisialisasi layanan Firebase
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app); // ✅ Inisialisasi auth
 
 // Opsional: Analytics
 let analytics;
@@ -27,5 +29,5 @@ if (typeof window !== "undefined") {
   analytics = getAnalytics(app);
 }
 
-// Ekspor semua yang dibutuhkan
-export { app, analytics, db, storage };
+// ✅ Ekspor semua yang dibutuhkan
+export { app, analytics, db, storage, auth };

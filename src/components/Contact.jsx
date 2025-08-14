@@ -200,40 +200,41 @@ export default function Contact() {
 
   // ===== Submit comment to Firestore =====
   const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!commentForm.name.trim() || !commentForm.message.trim()) return;
+  e.preventDefault();
 
-    setIsSubmittingComment(true);
+  // Validasi form
+  if (!commentForm.name.trim() || !commentForm.message.trim()) return;
 
-    try {
-      // Default avatar
-      let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        commentForm.name
-      )}&background=00ffdc&color=000754&size=100`;
+  setIsSubmittingComment(true);
 
-      // Upload ke Cloudinary bila ada file
-      if (commentForm.photo) {
-        photoURL = await uploadToCloudinary(commentForm.photo);
-      }
+  try {
+    // Photo opsional: default null
+    let photoURL = null;
 
-      await addDoc(collection(db, 'comments'), {
-        name: commentForm.name,
-        message: commentForm.message,
-        photo: photoURL,
-        likes: 0,
-        timestamp: serverTimestamp(),
-      });
-
-      // Reset form
-      setCommentForm({ name: '', message: '', photo: null, photoPreview: null });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    } catch (err) {
-      console.error(err);
-      alert(`Gagal mengirim komentar: ${err.message}`);
-    } finally {
-      setIsSubmittingComment(false);
+    // Upload ke Cloudinary bila ada file
+    if (commentForm.photo) {
+      photoURL = await uploadToCloudinary(commentForm.photo);
     }
-  };
+
+    // Simpan komentar ke Firestore
+    await addDoc(collection(db, 'comments'), {
+      name: commentForm.name.trim(),
+      message: commentForm.message.trim(),
+      photo: photoURL,       // null jika tidak ada
+      likes: 0,              // wajib 0 saat create
+      timestamp: serverTimestamp(), // server timestamp
+    });
+
+    // Reset form
+    setCommentForm({ name: '', message: '', photo: null, photoPreview: null });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  } catch (err) {
+    console.error(err);
+    alert(`Gagal mengirim komentar: ${err.message}`);
+  } finally {
+    setIsSubmittingComment(false);
+  }
+};
 
   // ===== Like comment (increment + sederhana anti-spam per browser) =====
   const handleLikeComment = async (commentId) => {

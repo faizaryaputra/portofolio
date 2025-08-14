@@ -6,7 +6,7 @@ import {
   FaJsSquare, FaTools, FaFigma, FaGithub, FaTimes, FaDownload, FaLaravel, FaPhp
 } from 'react-icons/fa';
 import { 
-  SiTailwindcss, SiNextdotjs, SiVercel, SiMongodb, SiMysql,
+  SiTailwindcss, SiNextdotjs, SiVercel, SiMongodb, SiMysql, SiFirebase,
   SiExpress, SiPostgresql, SiGoland, SiVuedotjs, SiVite
 } from 'react-icons/si';
 import { PiCodeBold } from "react-icons/pi";
@@ -48,7 +48,7 @@ const dummyProjects = [
     tech: ["Spline", "Blender"],
     link: "#",
     image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop",
-    category: "3D Design",
+    category: "Design",
   },
   {
     title: "Animated 3D Landing",
@@ -56,7 +56,7 @@ const dummyProjects = [
     tech: ["Spline", "Three.js"],
     link: "#",
     image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?q=80&w=2070&auto=format&fit=crop",
-    category: "3D Design",
+    category: "Design",
   },
 ];
 
@@ -120,10 +120,11 @@ const techStack = {
     { name: "Golang", icon: <SiGoland className="text-[#00ADD8]" /> },
   ],
   database: [
-    { name: "MongoDB", icon: <SiMongodb className="text-[#4DB33D]" /> },
-    { name: "PostgreSQL", icon: <SiPostgresql className="text-[#336791]" /> },
-    { name: "MySQL", icon: <SiMysql className="text-[#4479A1]" /> },
-  ],
+  { name: "MongoDB", icon: <SiMongodb className="text-[#4DB33D]" /> },
+  { name: "PostgreSQL", icon: <SiPostgresql className="text-[#336791]" /> },
+  { name: "MySQL", icon: <SiMysql className="text-[#4479A1]" /> },
+  { name: "Firebase", icon: <SiFirebase className="text-[#ffba1b]" /> }, // tambahan
+],
   tools: [
     { name: "Git & GitHub", icon: <FaGithub className="text-white" /> },
     { name: "Vercel", icon: <SiVercel className="text-white" /> },
@@ -412,7 +413,7 @@ function ProjectSection() {
                 <>
                   <div className="flex justify-center gap-4 mb-8">
                     <button className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 border ${projectCategory === 'Web/Apps' ? 'bg-orange-700/80 text-white border-yellow-500 shadow-orange-500/10 shadow-lg' : 'bg-slate-900/60 text-orange-400 border-slate-700 hover:bg-orange-800/40 hover:text-white'}`} onClick={() => setProjectCategory('Web/Apps')}>Web/Apps</button>
-                    <button className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 border ${projectCategory === '3D Design' ? 'bg-orange-700/80 text-white border-yellow-500 shadow-orange-500/10 shadow-lg' : 'bg-slate-900/60 text-orange-400 border-slate-700 hover:bg-orange-800/40 hover:text-white'}`} onClick={() => setProjectCategory('3D Design')}>3D Design</button>
+                    <button className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 border ${projectCategory === 'Design' ? 'bg-orange-700/80 text-white border-yellow-500 shadow-orange-500/10 shadow-lg' : 'bg-slate-900/60 text-orange-400 border-slate-700 hover:bg-orange-800/40 hover:text-white'}`} onClick={() => setProjectCategory('Design')}>Design</button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredProjects.length > 0 ? (

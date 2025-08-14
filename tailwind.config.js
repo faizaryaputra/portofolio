@@ -1,4 +1,3 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -33,7 +32,5 @@ export default {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/line-clamp'), // ← Tambahkan ini
-  ],
+  plugins: [],
 }

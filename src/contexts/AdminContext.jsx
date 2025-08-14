@@ -1,161 +1,285 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// src/contexts/AdminContext.jsx
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { auth, db } from "../firebaseConfig"; // pastikan file ini mengekspor auth & db
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  getIdTokenResult,
+} from "firebase/auth";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+  increment,
+} from "firebase/firestore";
 
-const AdminContext = createContext();
-
+const AdminContext = createContext(null);
 export const useAdmin = () => {
-  const context = useContext(AdminContext);
-  if (!context) {
-    throw new Error('useAdmin must be used within an AdminProvider');
-  }
-  return context;
+  const ctx = useContext(AdminContext);
+  if (!ctx) throw new Error("useAdmin must be used within an AdminProvider");
+  return ctx;
 };
 
-// Admin credentials (In production, this should be handled by a backend)
-const ADMIN_CREDENTIALS = {
-  username: 'admin5z',
-  password: '5zarya@admin', // Strong password for admin
-  sessionDuration: 30 * 60 * 1000 // 30 minutes in milliseconds
-};
+/** KONFIGURASI ADMIN */
+const ADMIN_UID = "2ZX5GyK6IhV6hYACVRsRkPQdhmm1";
+const ADMIN_EMAIL = "admin5z@admin.com";
+const ADMIN_PASSWORD = "5Zarya2904";
+
+/** SESI ADMIN (untuk timer di UI AdminMessages) */
+const SESSION_DURATION_MS = 30 * 60 * 1000; // 30 menit
+const EXTEND_MINUTES_MS = 15 * 60 * 1000;   // +15 menit
+const SESSION_KEY = "adminSession";
+
+function readSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+function writeSession(session) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+function nowMs() {
+  return Date.now();
+}
 
 export const AdminProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Optional: fitur keamanan seperti sebelumnya
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [lockoutTime, setLockoutTime] = useState(null);
 
-  // Check for existing session on load
+  // Data comments realtime (bisa dipakai oleh komponen lain)
+  const [comments, setComments] = useState([]);
+
+  /** Monitor Firebase Auth state */
   useEffect(() => {
-    const checkSession = () => {
-      const sessionData = localStorage.getItem('adminSession');
-      if (sessionData) {
-        try {
-          const { timestamp, authenticated } = JSON.parse(sessionData);
-          const now = new Date().getTime();
-          
-          // Check if session is still valid (30 minutes)
-          if (authenticated && (now - timestamp) < ADMIN_CREDENTIALS.sessionDuration) {
-            setIsAuthenticated(true);
-          } else {
-            // Session expired, remove it
-            localStorage.removeItem('adminSession');
-            setIsAuthenticated(false);
-          }
-        } catch (error) {
-          localStorage.removeItem('adminSession');
-          setIsAuthenticated(false);
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (!u) {
+        setIsAdmin(false);
+        setIsAuthenticated(false);
+        clearSession();
+        setComments([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Refresh token untuk mengambil custom claims terbaru
+      let claimsAdmin = false;
+      try {
+        const tokenResult = await getIdTokenResult(u, true);
+        claimsAdmin = !!tokenResult.claims?.admin;
+      } catch {
+        claimsAdmin = false;
+      }
+
+      const uidAdmin = u.uid === ADMIN_UID;
+      const adminOK = claimsAdmin || uidAdmin;
+
+      if (!adminOK) {
+        // Kalau yang login bukan admin, langsung signOut agar aman
+        await signOut(auth);
+        setIsAdmin(false);
+        setIsAuthenticated(false);
+        clearSession();
+      } else {
+        setIsAdmin(true);
+        setIsAuthenticated(true);
+
+        // Setup session admin kalau belum ada
+        const sess = readSession();
+        if (!sess || !sess.expiresAt) {
+          writeSession({
+            uid: u.uid,
+            email: u.email,
+            // default: 30 menit dari sekarang
+            expiresAt: nowMs() + SESSION_DURATION_MS,
+          });
         }
       }
-      setIsLoading(false);
-    };
 
-    checkSession();
+      setIsLoading(false);
+    });
+    return unsub;
   }, []);
 
-  // Auto logout after session expires
+  /** Realtime subscribe ke comments saat admin aktif */
   useEffect(() => {
-    if (isAuthenticated) {
-      const sessionTimer = setInterval(() => {
-        const sessionData = localStorage.getItem('adminSession');
-        if (sessionData) {
-          const { timestamp } = JSON.parse(sessionData);
-          const now = new Date().getTime();
-          
-          if ((now - timestamp) >= ADMIN_CREDENTIALS.sessionDuration) {
-            logout();
-          }
-        }
-      }, 60000); // Check every minute
+    if (!isAdmin) return;
+    const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setComments(data);
+    });
+    return unsub;
+  }, [isAdmin]);
 
-      return () => clearInterval(sessionTimer);
-    }
+  /** Auto logout jika session expire */
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const t = setInterval(() => {
+      const remaining = getSessionTimeRemaining();
+      if (remaining <= 0) {
+        logout(); // auto logout
+      }
+    }, 1000); // cek tiap detik agar timer UI akurat
+    return () => clearInterval(t);
   }, [isAuthenticated]);
 
-  // Login function
-  const login = async (username, password) => {
-    // Check if account is locked
-    if (lockoutTime && new Date().getTime() < lockoutTime) {
-      const remainingTime = Math.ceil((lockoutTime - new Date().getTime()) / 1000 / 60);
-      throw new Error(`Account terkunci. Coba lagi dalam ${remainingTime} menit.`);
+  /** LOGIN admin */
+  const login = async (email, password) => {
+    // Cek lockout
+    if (lockoutTime && nowMs() < lockoutTime) {
+      const sisa = Math.ceil((lockoutTime - nowMs()) / 1000 / 60);
+      throw new Error(`Akun terkunci. Coba lagi dalam ${sisa} menit.`);
     }
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const emailUse = email || ADMIN_EMAIL;
+      const passUse = password || ADMIN_PASSWORD;
 
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-      // Successful login
-      const sessionData = {
-        authenticated: true,
-        timestamp: new Date().getTime(),
-        username: username
-      };
-      
-      localStorage.setItem('adminSession', JSON.stringify(sessionData));
+      const cred = await signInWithEmailAndPassword(auth, emailUse, passUse);
+      const u = cred.user;
+
+      // Refresh token untuk baca custom claim admin
+      const tokenResult = await getIdTokenResult(u, true);
+      const claimsAdmin = !!tokenResult.claims?.admin;
+      const uidAdmin = u.uid === ADMIN_UID;
+
+      if (!(claimsAdmin || uidAdmin)) {
+        await signOut(auth);
+        throw new Error("Akun ini bukan admin yang diizinkan.");
+      }
+
+      // Buat/refresh sesi 30 menit dari sekarang
+      writeSession({
+        uid: u.uid,
+        email: u.email,
+        expiresAt: nowMs() + SESSION_DURATION_MS,
+      });
+
       setIsAuthenticated(true);
+      setIsAdmin(true);
       setLoginAttempts(0);
       setLockoutTime(null);
       return true;
-    } else {
-      // Failed login
+    } catch (err) {
+      // gagal login → hitung attempts
       const newAttempts = loginAttempts + 1;
       setLoginAttempts(newAttempts);
 
-      // Lock account after 3 failed attempts for 15 minutes
       if (newAttempts >= 3) {
-        const lockTime = new Date().getTime() + (15 * 60 * 1000); // 15 minutes
-        setLockoutTime(lockTime);
-        throw new Error('Terlalu banyak percobaan login yang gagal. Account terkunci selama 15 menit.');
+        const lock = nowMs() + 15 * 60 * 1000; // 15 menit
+        setLockoutTime(lock);
+        throw new Error(
+          "Terlalu banyak percobaan gagal. Akun terkunci 15 menit."
+        );
       }
 
-      throw new Error(`Username atau password salah. Sisa percobaan: ${3 - newAttempts}`);
+      throw new Error(
+        `Login gagal. Sisa percobaan: ${3 - newAttempts}${
+          err?.message ? ` (${err.message})` : ""
+        }`
+      );
     }
   };
 
-  // Logout function
-  const logout = () => {
-    localStorage.removeItem('adminSession');
+  /** LOGOUT admin */
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (_) {
+      // ignore
+    }
+    clearSession();
     setIsAuthenticated(false);
+    setIsAdmin(false);
+    setUser(null);
+    setComments([]);
     setLoginAttempts(0);
     setLockoutTime(null);
   };
 
-  // Extend session
+  /** EXTEND session (+15 menit dari waktu kadaluarsa saat ini) */
   const extendSession = () => {
-    if (isAuthenticated) {
-      const sessionData = {
-        authenticated: true,
-        timestamp: new Date().getTime(),
-        username: ADMIN_CREDENTIALS.username
-      };
-      localStorage.setItem('adminSession', JSON.stringify(sessionData));
-    }
+    if (!isAuthenticated) return;
+    const sess = readSession();
+    const base =
+      sess?.expiresAt && sess.expiresAt > nowMs() ? sess.expiresAt : nowMs();
+    writeSession({
+      ...(sess || {}),
+      expiresAt: base + EXTEND_MINUTES_MS,
+    });
   };
 
-  // Get remaining session time
+  /** Sisa waktu session (ms) — dipakai AdminMessages */
   const getSessionTimeRemaining = () => {
-    const sessionData = localStorage.getItem('adminSession');
-    if (sessionData && isAuthenticated) {
-      const { timestamp } = JSON.parse(sessionData);
-      const elapsed = new Date().getTime() - timestamp;
-      const remaining = ADMIN_CREDENTIALS.sessionDuration - elapsed;
-      return Math.max(0, remaining);
-    }
-    return 0;
+    const sess = readSession();
+    if (!sess?.expiresAt || !isAuthenticated) return 0;
+    return Math.max(0, sess.expiresAt - nowMs());
+  };
+
+  /** ------ Aksi Firestore untuk comments ------ */
+
+  // Admin: tandai comment sebagai read
+  const markAsRead = async (commentId) => {
+    if (!isAdmin) throw new Error("Tidak memiliki hak akses.");
+    await updateDoc(doc(db, "comments", commentId), { status: "read" });
+  };
+
+  // Admin: hapus comment
+  const deleteComment = async (commentId) => {
+    if (!isAdmin) throw new Error("Tidak memiliki hak akses.");
+    await deleteDoc(doc(db, "comments", commentId));
+  };
+
+  // User login biasa: like +1 (sesuai rules kamu)
+  const likeComment = async (commentId) => {
+    // butuh request.auth != null sesuai rules update
+    await updateDoc(doc(db, "comments", commentId), { likes: increment(1) });
   };
 
   const value = {
+    /** auth */
+    user,
+    isAdmin,
     isAuthenticated,
     isLoading,
+
+    /** login/logout */
     login,
     logout,
+
+    /** session timer untuk AdminMessages */
     extendSession,
     getSessionTimeRemaining,
+
+    /** keamanan tambahan */
     loginAttempts,
-    lockoutTime
+    lockoutTime,
+
+    /** data & aksi comments */
+    comments, // realtime array { id, name, message, ... }
+    markAsRead,
+    deleteComment,
+    likeComment,
   };
 
-  return (
-    <AdminContext.Provider value={value}>
-      {children}
-    </AdminContext.Provider>
-  );
+  return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
 };
