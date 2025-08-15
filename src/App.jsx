@@ -102,7 +102,7 @@ function App() {
                   }}
                 >
                   WELCOME TO MY
-                  <span style={{ display: "block", marginTop: "0.4em" }}>PORTFOLIO</span>
+                  <span style={{ display: "block", marginTop: "0.4em" }}>PORTOFOLIO</span>
                 </motion.h1>
 
                 {/* Gradasi teks dinamis di bawah judul */}

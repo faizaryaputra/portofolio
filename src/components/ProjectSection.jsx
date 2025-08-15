@@ -19,7 +19,7 @@ import { useNavbar } from '../contexts/NavbarContext';
 // ===================================
 const dummyProjects = [
     {
-    title: "Portfolio v2",
+    title: "Portofolio v2",
     description: "Website portofolio pribadi yang dibangun dengan React, Next.js, dan Tailwind CSS, di-deploy di Vercel.",
     tech: ["Next.js", "React", "TailwindCSS", "Framer Motion"],
     link: "https://github.com/username/portfolio",
@@ -356,7 +356,7 @@ function ProjectSection() {
         className="text-center mb-20"
       >
         <h2 className="text-4xl font-bold font-moderniz">
-            <span style={{color: "#ff6a00"}}><LineShadowText shadowColor="#ff0000">PORTFOLIO</LineShadowText></span>
+            <span style={{color: "#ff6a00"}}><LineShadowText shadowColor="#ff0000">PORTOFOLIO</LineShadowText></span>
             {' '}
             <span style={{ color: "#fff" }}><LineShadowText shadowColor="#bbbbbb">SHOWCASE</LineShadowText></span>
         </h2>

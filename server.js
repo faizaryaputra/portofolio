@@ -19,7 +19,7 @@ app.post("/chat", async (req, res) => {
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful chatbot for Faiz Arya Putra's portfolio." },
+        { role: "system", content: "You are a helpful chatbot for Faiz Arya Putra's portofolio." },
         { role: "user", content: message },
       ],
     });

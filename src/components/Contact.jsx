@@ -140,9 +140,9 @@ export default function Contact() {
         status: 'unread',
       };
 
-      const saved = localStorage.getItem('portfolioContactMessages');
+      const saved = localStorage.getItem('portofolioContactMessages');
       const messages = saved ? JSON.parse(saved) : [];
-      localStorage.setItem('portfolioContactMessages', JSON.stringify([newMessage, ...messages]));
+      localStorage.setItem('portofolioContactMessages', JSON.stringify([newMessage, ...messages]));
 
       // Simulasi kirim email
       await new Promise((r) => setTimeout(r, 1500));
