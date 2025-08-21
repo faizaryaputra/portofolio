@@ -3,6 +3,10 @@ import { FaReact, FaEye } from "react-icons/fa";
 import { SiTailwindcss, SiFramer } from "react-icons/si";
 import { WiSunrise, WiDaySunny, WiSunset, WiNightClear } from "react-icons/wi";
 
+// Firebase
+import { db } from "../firebaseConfig";
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
+
 function Footer() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState("");
@@ -10,52 +14,58 @@ function Footer() {
   const [visitors, setVisitors] = useState(0);
   const [greetingColor, setGreetingColor] = useState("");
 
+  // Ambil dan update counter dari Firestore
+  useEffect(() => {
+    const fetchVisitorCount = async () => {
+      const visitorRef = doc(db, "stats", "visitorCount");
+      const snap = await getDoc(visitorRef);
+
+      if (snap.exists()) {
+        // Ambil data count
+        const currentCount = snap.data().count || 0;
+
+        // Update +1 ke Firestore
+        await updateDoc(visitorRef, {
+          count: increment(1),
+        });
+
+        // Set ke state
+        setVisitors(currentCount + 1);
+      } else {
+        console.log("Document tidak ditemukan");
+      }
+    };
+
+    fetchVisitorCount();
+  }, []);
+
+  // === Bagian Greeting ===
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
 
       const hour = now.getHours();
-
       if (hour >= 5 && hour < 11) {
         setGreeting("GOOD MORNING");
         setIcon(<WiSunrise className="text-yellow-300 text-3xl" />);
-        setGreetingColor(
-          "bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-500"
-        );
+        setGreetingColor("bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-500");
       } else if (hour >= 11 && hour < 15) {
         setGreeting("GOOD AFTERNOON");
         setIcon(<WiDaySunny className="text-yellow-200 text-3xl" />);
-        setGreetingColor(
-          "bg-gradient-to-r from-sky-400 via-blue-500 to-sky-600"
-        );
+        setGreetingColor("bg-gradient-to-r from-sky-400 via-blue-500 to-sky-600");
       } else if (hour >= 15 && hour < 18) {
         setGreeting("GOOD EVENING");
         setIcon(<WiSunset className="text-orange-400 text-3xl" />);
-        setGreetingColor(
-          "bg-gradient-to-r from-orange-500 via-red-500 to-orange-600"
-        );
+        setGreetingColor("bg-gradient-to-r from-orange-500 via-red-500 to-orange-600");
       } else {
         setGreeting("GOOD NIGHT");
         setIcon(<WiNightClear className="text-blue-400 text-3xl" />);
-        setGreetingColor(
-          "bg-gradient-to-r from-purple-700 via-indigo-800 to-purple-900"
-        );
+        setGreetingColor("bg-gradient-to-r from-purple-700 via-indigo-800 to-purple-900");
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    let count = localStorage.getItem("visitorCount");
-    if (!count) {
-      count = 1;
-    } else {
-      count = parseInt(count) + 1;
-    }
-    localStorage.setItem("visitorCount", count);
-    setVisitors(count);
   }, []);
 
   const formattedTime = currentTime.toLocaleTimeString("id-ID", {

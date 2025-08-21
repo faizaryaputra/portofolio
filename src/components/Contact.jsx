@@ -298,7 +298,7 @@ export default function Contact() {
     {
       name: 'LinkedIn',
       icon: <FaLinkedin />,
-      url: 'https://linkedin.com/in/faiz-arya-putra-8527542a0',
+      url: 'https://linkedin.com/in/faiz-arya-putra',
       color: 'from-blue-600 to-blue-800',
       hoverColor: 'hover:shadow-blue-500/25',
     },

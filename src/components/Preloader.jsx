@@ -99,7 +99,7 @@ const Preloader = ({ onFinished }) => {
                 <a href="https://github.com/faizaryaputra" target="_blank" rel="noopener noreferrer" className="hover:text-[#00ffdc] transition-all duration-300 transform hover:scale-110">
                   <Github size={32} />
                 </a>
-                <a href="https://linkedin.com/in/faiz-arya-putra-8527542a0" target="_blank" rel="noopener noreferrer" className="hover:text-[#00ffdc] transition-all duration-300 transform hover:scale-110">
+                <a href="https://linkedin.com/in/faiz-arya-putra" target="_blank" rel="noopener noreferrer" className="hover:text-[#00ffdc] transition-all duration-300 transform hover:scale-110">
                   <Linkedin size={32} />
                 </a>
                 <a href="https://wa.me/6285748522497" target="_blank" rel="noopener noreferrer" className="hover:text-[#00ffdc] transition-all duration-300 transform hover:scale-110">

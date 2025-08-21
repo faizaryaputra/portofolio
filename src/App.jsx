@@ -180,7 +180,7 @@ function App() {
 
                   {/* LinkedIn */}
                   <a
-                    href="https://linkedin.com/in/faiz-arya-putra-8527542a0/"
+                    href="https://linkedin.com/in/faiz-arya-putra/"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn Profile"
@@ -239,9 +239,20 @@ function App() {
                     "Whoever strives shall succeed."
                   </div>
                   <div className="flex flex-row sm:flex-row gap-4 mt-8 justify-center md:justify-start items-center">
-                    <ButtonMovingBorder as="a" href="/cv.pdf" download duration={3000} borderRadius="0.75rem" className="bg-slate-900/[0.8] border border-slate-800 text-white font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-[0_0_24px_8px_#ff5000]">
+                    <ButtonMovingBorder 
+                      as="a" 
+                      href="/CV/CV_FAIZ ARYA PUTRA.pdf" 
+                      download="CV_Faiz_Arya_Putra.pdf"
+                      duration={3000} 
+                      borderRadius="0.75rem" 
+                      aria-label="Download CV Faiz Arya Putra"
+                      className="bg-slate-900/80 border border-slate-800 text-white font-semibold 
+                                flex items-center justify-center gap-2 transition-all duration-300 
+                                hover:shadow-[0_0_24px_8px_#ff5000]"
+                    >
                       <FaDownload /> Download CV
                     </ButtonMovingBorder>
+
                     <ButtonMovingBorder as="a" href="#projects" duration={3000} borderRadius="0.75rem" className="bg-slate-900/[0.8] border border-slate-800 text-white font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-[0_0_24px_8px_#ff5000]">
                       <FaBriefcase /> View Projects
                     </ButtonMovingBorder>
