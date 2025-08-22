@@ -91,6 +91,13 @@ const userCertificates = [
         link: "/certificates/Backend Development Fundamental MySkill.pdf",
         image: "/certificate-images/Backend Development Fundamental MySkill.jpg",
     },
+    {
+        title: "Sertifikat Pelatihan",
+        issuer: "Workshop",
+        date: "Agt 2025",
+        link: "/certificates/Sertifikat Pelatihan.pdf",
+        image: "/certificate-images/Sertifikat Pelatihan.jpg",
+    },
 ];
 
 const techStack = {
