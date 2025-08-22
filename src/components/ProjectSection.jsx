@@ -20,32 +20,32 @@ import { useNavbar } from '../contexts/NavbarContext';
 const dummyProjects = [
     {
     title: "5ZCafeshop",
-    description: "Website portofolio pribadi yang dibangun dengan React, Next.js, dan Tailwind CSS, di-deploy di Vercel.",
-    tech: ["Next.js", "React", "TailwindCSS", "Framer Motion"],
+    description: "Aplikasi web pemesanan dan manajemen kafe berbasis Laravel, dengan fitur keranjang belanja, pemesanan menu, login, dan integrasi pembayaran.",
+    tech: ["Next.js", "React", "TailwindCSS", "Laravel", "Mysql"],
     link: "https://github.com/faizaryaputra/5Z_shop",
     image: "/project/5ZCafeshop.jpg",
     category: "Web/Apps",
   },
   {
     title: "5ZEternity",
-    description: "RESTful API untuk platform e-commerce dengan fitur otentikasi, manajemen produk, dan transaksi.",
-    tech: ["Node.js", "Express", "MongoDB", "JWT"],
+    description: "Aplikasi web AI chatbot seperti ChatGPT yang dibangun dengan Ollama dan model Gemma 2B, mendukung percakapan interaktif dan respons cerdas.",
+    tech: ["Node.js", "Express", "MongoDB", "TailwindCSS"],
     link: "https://github.com/faizaryaputra/5ZEternity",
     image: "/project/5ZEternity.jpg",
     category: "Web/Apps",
   },
   {
     title: "5ZHotel",
-    description: "Merancang komponen UI yang reusable dan konsisten untuk aplikasi web menggunakan Figma.",
-    tech: ["Figma", "Storybook"],
+    description: "Sistem reservasi hotel berbasis Laravel dengan manajemen kamar, pemesanan, dan dashboard admin.",
+    tech: ["Next.js", "TailwindCSS", "Laravel"],
     link: "https://github.com/faizaryaputra/5ZHotel",
     image: "/project/5ZHotel.jpg",
     category: "Web/Apps",
   },
   {
     title: "5ZEternity Trade",
-    description: "Desain 3D interaktif untuk showcase produk menggunakan Spline dan Blender.",
-    tech: ["Spline", "Blender"],
+    description: "Portofolio interaktif 3D dengan model GLB, animasi fisika, dan interaksi mouse menggunakan React Three Fiber dan Rapier Physics.",
+    tech: ["Figma"],
     link: "https://www.figma.com/proto/zPzwkeMku5hV06vzbQcP0m/Aplikasi-5Z-Eternity?node-id=427-6&t=z2CYnkClQrgYpiub-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=427%3A6",
     image: "/project/5ZEternity Trade.jpg",
     category: "Design",
@@ -252,8 +252,8 @@ const CertificatePreviewModal = ({ certificate, onClose }) => {
 const ProjectCard = ({ project }) => {
     const techIcons = {
     "Next.js": <SiNextdotjs />, "React": <FaReact />, "TailwindCSS": <SiTailwindcss />,
-    "Framer Motion": " गति ", "Node.js": <FaNodeJs />, "Express": <SiExpress />, 
-    "MongoDB": <SiMongodb />, "JWT": "🔑", "Figma": <FaFigma />, "Storybook": "📚"
+    "Laravel": <FaLaravel />, "Node.js": <FaNodeJs />, "Express": <SiExpress />, 
+    "MongoDB": <SiMongodb />, "JWT": "🔑", "Figma": <FaFigma />, "Mysql": <SiMysql />
     };
 
     return (
