@@ -6,10 +6,11 @@ import ChatPage from "./components/ChatPage";
 import Header from './components/Header';
 import Squares from './components/Squares';
 import Footer from './components/Footer'; 
-import TextGenerateEffect from "./components/text-generate-effect";
+import TextGenerateEffect from "./components/TextGenerateEffect";
 import GradientText from './components/GradientText';
 import { AnimatedGradientTextDemo } from './components/AnimatedGradientTextDemo';
 import Lanyard from './components/Lanyard/Lanyard';
+import ResponsiveProfile from "./components/ResponsiveProfile";
 import MySkills from "./components/MySkills";
 import Skills from './components/Skills';
 import { ButtonMovingBorder } from './components/MovingBorderButton';
@@ -221,59 +222,88 @@ function App() {
 
               <div className="flex flex-col md:flex-row items-center justify-center">
                 {/* KANAN: Teks & Tombol */}
+                {/* Render ResponsiveProfile */}
+{is3dEnabled && ( 
+  <motion.div 
+  initial={{ opacity: 0, scale: 0.8 }} 
+  whileInView={{ opacity: 1, scale: 1 }} 
+  viewport={{ once: true, amount: 0.3 }} 
+  transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }} 
+  className="w-full md:w-1/3 flex justify-center z-5" > 
+  <div className="w-full h-[300px] md:h-[530px] flex items-center justify-center z-5">
+      <ResponsiveProfile />
+    </div>
+  </motion.div>
+)}
                 {/* 4. Sesuaikan lebar kolom teks secara dinamis */}
                 <motion.div
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.9, ease: "easeOut" }}
-                  // Lebar berubah jika 3D dinonaktifkan
-                  className={`text-white text-center md:text-left px-4 md:px-8 transition-all duration-700 ${is3dEnabled ? 'md:w-1/2' : 'md:w-2/3'}`}
-                >
-                  <p className="text-2xl text-orange-600 font-moderniz my" style={{ textShadow: "2px 2px 0 #000754, 4px 4px 0 #ff0000, 0 4px 12px #ff0000, 0 1px 0 #00ffdc" }}>Hello, I'm</p>
-                  <h3 className="text-4xl font-bold text-orange-600 my-2 font-moderniz" style={{ textShadow: "2px 2px 0 #000754, 4px 4px 0 #ff0000, 0 4px 12px #ff0000, 0 1px 0 #00ffdc" }}>Faiz Arya Putra</h3>
-                  <p className="text-white/80 leading-relaxed mt-4 font-cascadia text-justify">
-                    Saya adalah mahasiswa Sistem Informasi di Universitas Gunadarma Depok yang memiliki minat besar dalam pengembangan Front-End dan teknologi web modern. Saya selalu bersemangat untuk belajar hal baru dan menciptakan solusi digital yang inovatif.
-                  </p>
-                  <div className="my-6 bg-slate-900/50 border-l-4 border-[#ff6a00] p-4 rounded-r-lg italic text-white/70 font-cascadia">
-                    "Whoever strives shall succeed."
-                  </div>
-                  <div className="flex flex-row sm:flex-row gap-4 mt-8 justify-center md:justify-start items-center">
-                    <ButtonMovingBorder 
-                      as="a" 
-                      href="/CV/CV_FAIZ ARYA PUTRA.pdf" 
-                      download="CV_Faiz_Arya_Putra.pdf"
-                      duration={3000} 
-                      borderRadius="0.75rem" 
-                      aria-label="Download CV Faiz Arya Putra"
-                      className="bg-slate-900/80 border border-slate-800 text-white font-semibold 
-                                flex items-center justify-center gap-2 transition-all duration-300 
-                                hover:shadow-[0_0_24px_8px_#ff5000]"
-                    >
-                      <FaDownload /> Download CV
-                    </ButtonMovingBorder>
+  initial={{ opacity: 0, x: -50 }}
+  whileInView={{ opacity: 1, x: 0 }}
+  viewport={{ once: true, amount: 0.3 }}
+  transition={{ duration: 0.9, ease: "easeOut" }}
+  className={`text-white text-center md:text-left px-4 md:px-8 transition-all duration-700 
+              ${is3dEnabled ? "md:w-1/2" : "md:w-2/3"}`}
+>
+  <p
+    className="text-2xl text-orange-600 font-moderniz my"
+    style={{
+      textShadow:
+        "2px 2px 0 #000754, 4px 4px 0 #ff0000, 0 4px 12px #ff0000, 0 1px 0 #00ffdc",
+    }}
+  >
+    Hello, I'm
+  </p>
+  <h3
+    className="text-4xl font-bold text-orange-600 my-2 font-moderniz"
+    style={{
+      textShadow:
+        "2px 2px 0 #000754, 4px 4px 0 #ff0000, 0 4px 12px #ff0000, 0 1px 0 #00ffdc",
+    }}
+  >
+    Faiz Arya Putra
+  </h3>
 
-                    <ButtonMovingBorder as="a" href="#projects" duration={3000} borderRadius="0.75rem" className="bg-slate-900/[0.8] border border-slate-800 text-white font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-[0_0_24px_8px_#ff5000]">
-                      <FaBriefcase /> View Projects
-                    </ButtonMovingBorder>
-                  </div>
-                </motion.div>
-                {/* 3. Render Spline secara kondisional */}
-                {is3dEnabled && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-                  className="w-full md:w-1/3 flex justify-center z-5"
-                >
-                  <div className="w-full h-[300px] md:h-[530px] flex items-center justify-center z-5">
-                    <Lanyard position={[0, 0, 12]} gravity={[0, -40, 0]} fov={18} transparent={true} />
-                  </div>
-                </motion.div>
-              )}
-              </div>
+  <p className="text-white leading-relaxed mt-4 font-cascadia text-justify drop-shadow-sm">
+    Saya adalah mahasiswa Sistem Informasi di Universitas Gunadarma Depok yang
+    memiliki minat besar dalam pengembangan Front-End dan teknologi web modern.
+    Saya selalu bersemangat untuk belajar hal baru dan menciptakan solusi digital
+    yang inovatif.
+  </p>
 
+  <div className="my-6 bg-slate-900/50 border-l-4 border-[#ff6a00] p-4 rounded-r-lg italic text-white/70 font-cascadia">
+    “Whoever strives shall succeed.”
+  </div>
+
+  {/* Tombol */}
+  <div className="flex flex-row sm:flex-row gap-4 mt-8 justify-center md:justify-start items-center z-10 relative">
+    <ButtonMovingBorder
+      as="a"
+      href="/CV/CV_FAIZ ARYA PUTRA.pdf"
+      download="CV_Faiz_Arya_Putra.pdf"
+      duration={3000}
+      borderRadius="0.75rem"
+      aria-label="Download CV Faiz Arya Putra"
+      className="bg-slate-900/80 border border-slate-800 text-white font-semibold 
+                 flex items-center justify-center gap-2 transition-all duration-300 
+                 hover:shadow-[0_0_24px_8px_#ff5000]"
+    >
+      <FaDownload /> Download CV
+    </ButtonMovingBorder>
+
+    <ButtonMovingBorder
+      as="a"
+      href="#projects"
+      duration={3000}
+      borderRadius="0.75rem"
+      className="bg-slate-900/[0.8] border border-slate-800 text-white font-semibold 
+                 flex items-center justify-center gap-2 transition-all duration-300 
+                 hover:shadow-[0_0_24px_8px_#ff5000]"
+    >
+      <FaBriefcase /> View Projects
+    </ButtonMovingBorder>
+  </div>
+</motion.div>
+</div>
             <MySkills />
               
               {/* ... Statistik ... */}

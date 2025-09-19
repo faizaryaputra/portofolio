@@ -33,6 +33,7 @@
   transform: translate3d(0, 0, 0.1px);
   position: relative;
   touch-action: none;
+  
 }
 
 .pc-card-wrapper::before {
@@ -61,8 +62,10 @@
 }
 
 .pc-card {
-  height: 80svh;
-  max-height: 540px;
+  height: 50svh;
+  max-height: 320px;
+  max-width: 200px;
+  margin: 0 auto;
   display: grid;
   aspect-ratio: 0.718;
   border-radius: var(--card-radius);
@@ -195,7 +198,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  backdrop-filter: blur(30px);
+  backdrop-filter: blur(10px);
   mask: linear-gradient(to bottom,
       rgba(0, 0, 0, 0) 0%,
       rgba(0, 0, 0, 0) 60%,
@@ -213,9 +216,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   padding: 12px 14px;
   pointer-events: auto;
@@ -253,13 +256,13 @@
 .pc-handle {
   font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
   line-height: 1;
 }
 
 .pc-status {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.7);
   line-height: 1;
 }
 
@@ -269,7 +272,7 @@
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
@@ -346,10 +349,11 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1366px) {
   .pc-card {
-    height: 70svh;
-    max-height: 450px;
+    height: 40svh;
+    max-height: 260px;
+    max-width: 160px;
   }
 
   .pc-details {
@@ -357,11 +361,11 @@
   }
 
   .pc-details h3 {
-    font-size: min(4svh, 2.5em);
+    font-size: min(2.5svh, 1.2em);
   }
 
   .pc-details p {
-    font-size: 14px;
+    font-size: 11px;
   }
 
   .pc-user-info {
@@ -396,34 +400,35 @@
 
 @media (max-width: 480px) {
   .pc-card {
-    height: 60svh;
-    max-height: 380px;
+    height: 35svh;
+    max-height: 220px;
+    max-width: 140px;
   }
 
   .pc-details {
-    top: 1.5em;
+    top: 0.5em;
   }
 
   .pc-details h3 {
-    font-size: min(3.5svh, 2em);
+    font-size: min(2svh, 1em);
   }
 
   .pc-details p {
-    font-size: 12px;
-    top: -8px;
+    font-size: 9px;
+    top: -4px;
   }
 
   .pc-user-info {
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-    padding: 8px 10px;
+    bottom: 6px;
+    left: 6px;
+    right: 6px;
+    padding: 4px 6px;
     border-radius: 50px;
   }
 
   .pc-mini-avatar {
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
   }
 
   .pc-user-details {
@@ -439,8 +444,8 @@
   }
 
   .pc-contact-btn {
-    padding: 5px 10px;
-    font-size: 10px;
+    padding: 2px 5px;
+    font-size: 7px;
     border-radius: 50px;
   }
 }

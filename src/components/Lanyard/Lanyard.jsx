@@ -49,10 +49,10 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
   const [hovered, hover] = useState(false);
   const [isSmall, setIsSmall] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.50, 0]]);
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 0.9]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 0.9]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 0.9]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.5, 0]]);
 
   useEffect(() => {
     if (hovered) {
