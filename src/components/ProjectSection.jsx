@@ -23,32 +23,108 @@ const dummyProjects = [
     description: "Aplikasi web pemesanan dan manajemen kafe berbasis Laravel, dengan fitur keranjang belanja, pemesanan menu, login, dan integrasi pembayaran.",
     tech: ["Next.js", "React", "TailwindCSS", "Laravel", "Mysql"],
     link: "https://github.com/faizaryaputra/5Z_shop",
-    image: "/project/5ZCafeshop.jpg",
     category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/5ZCafeshop1.jpg" },
+      { type: "image", src: "/project/5ZCafeshop2.jpg" },
+      { type: "video", src: "/project/5ZCafeshop.mp4" },
+    ],
   },
   {
     title: "5ZEternity",
     description: "Aplikasi web AI chatbot seperti ChatGPT yang dibangun dengan Ollama dan model Gemma 2B, mendukung percakapan interaktif dan respons cerdas.",
     tech: ["Node.js", "Express", "MongoDB", "TailwindCSS"],
     link: "https://github.com/faizaryaputra/5ZEternity",
-    image: "/project/5ZEternity.jpg",
     category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/5ZEternity.jpg" },
+    ],
   },
   {
     title: "5ZHotel",
     description: "Sistem reservasi hotel berbasis Laravel dengan manajemen kamar, pemesanan, dan dashboard admin.",
     tech: ["Next.js", "TailwindCSS", "Laravel"],
     link: "https://github.com/faizaryaputra/5ZHotel",
-    image: "/project/5ZHotel.jpg",
     category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/5ZHotel1.jpg" },
+      { type: "image", src: "/project/5ZHotel2.jpg" },
+      { type: "image", src: "/project/5ZHotel3.jpg" },
+      { type: "image", src: "/project/5ZHotel4.jpg" },
+      { type: "image", src: "/project/5ZHotel5.jpg" },
+      { type: "video", src: "/project/5ZHotel.mp4" },
+    ],
+  },
+  {
+    title: "5ZAgency",
+    description: "Platform website agency modern yang menampilkan layanan digital seperti pembuatan website, desain UI/UX, dan branding. Dilengkapi dengan tampilan interaktif, animasi halus, serta halaman showcase untuk meningkatkan daya tarik klien.",
+    tech: ["React.js", "TailwindCSS"],
+    link: "https://github.com/faizaryaputra/5ZHotel",
+    category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/5ZAgency1.jpg" },
+      { type: "image", src: "/project/5ZAgency2.jpg" },
+      { type: "image", src: "/project/5ZAgency3.jpg" },
+      { type: "image", src: "/project/5ZAgency4.jpg" },
+      { type: "video", src: "/project/5ZAgency.mp4" },
+    ],
+  },
+  {
+    title: "5ZNexa",
+    description: "Platform HRIS modern yang mengintegrasikan manajemen karyawan, sistem absensi digital, dan monitoring kehadiran dalam satu sistem terpusat. Dirancang untuk meningkatkan efisiensi operasional perusahaan melalui dashboard yang informatif dan real-time data tracking.",
+    tech: ["Next.js", "TailwindCSS", "PostgreeSQL", "Node.js"],
+    link: "https://github.com/faizaryaputra/5ZHotel",
+    category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/5ZNexa1.jpg" },
+      { type: "image", src: "/project/5ZNexa2.jpg" },
+      { type: "image", src: "/project/5ZNexa3.jpg" },
+      { type: "image", src: "/project/5ZNexa4.jpg" },
+      { type: "image", src: "/project/5ZNexa5.jpg" },
+      { type: "image", src: "/project/5ZNexa6.jpg" },
+      { type: "image", src: "/project/5ZNexa7.jpg" },
+    ],
+  },
+  {
+    title: "TopUp5Z",
+    description: "Platform top up digital modern untuk game dan layanan online dengan sistem transaksi cepat, integrasi pembayaran, dan pengalaman pengguna yang sederhana serta responsif.",
+    tech: ["React.js", "TailwindCSS", "Node.js"],
+    link: "https://github.com/faizaryaputra/5ZHotel",
+    category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/TopUp5Z1.jpg" },
+      { type: "image", src: "/project/TopUp5Z2.jpg" },
+      { type: "image", src: "/project/TopUp5Z3.jpg" },
+      { type: "image", src: "/project/TopUp5Z4.jpg" },
+      { type: "video", src: "/project/TopUp5Z.mp4" },
+    ],
+  },
+  {
+    title: "Birthday-Generator",
+    description: "Aplikasi generator ucapan ulang tahun interaktif dengan animasi dan visual menarik, memungkinkan pengguna membuat pesan personal yang unik dan membagikannya secara digital.",
+    tech: ["React.js", "TailwindCSS", "Laravel"],
+    link: "https://github.com/faizaryaputra/5ZHotel",
+    category: "Web/Apps",
+    media: [
+      { type: "image", src: "/project/ucapin1.jpg" },
+      { type: "image", src: "/project/ucapin2.jpg" },
+      { type: "image", src: "/project/ucapin3.jpg" },
+      { type: "image", src: "/project/ucapin4.jpg" },
+      { type: "image", src: "/project/ucapin5.jpg" },
+      { type: "video", src: "/project/ucapin1.mp4" },
+      { type: "video", src: "/project/ucapin2.mp4" },
+      { type: "video", src: "/project/ucapin3.mp4" },
+    ],
   },
   {
     title: "5ZEternity Trade",
     description: "Portofolio interaktif 3D dengan model GLB, animasi fisika, dan interaksi mouse menggunakan React Three Fiber dan Rapier Physics.",
     tech: ["Figma"],
     link: "https://www.figma.com/proto/zPzwkeMku5hV06vzbQcP0m/Aplikasi-5Z-Eternity?node-id=427-6&t=z2CYnkClQrgYpiub-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=427%3A6",
-    image: "/project/5ZEternity Trade.jpg",
     category: "Design",
+    media: [
+      { type: "image", src: "/project/5ZEternity Trade.jpg" },
+    ],
   },
 ];
 
@@ -253,41 +329,280 @@ const CertificatePreviewModal = ({ certificate, onClose }) => {
     );
 };
 
+const ProjectModal = ({ project, onClose }) => {
+  const [[currentIndex, direction], setCurrentIndex] = useState([0, 0]);
+
+  if (!project) return null;
+
+  const media = project.media || [];
+
+  const paginate = (dir) => {
+    setCurrentIndex(([prev]) => [
+      (prev + dir + media.length) % media.length,
+      dir,
+    ]);
+  };
+
+  const swipeConfidenceThreshold = 10000;
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg flex items-center justify-center px-2 sm:px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+  className="
+    relative w-full 
+    max-w-[92%] sm:max-w-xl md:max-w-2xl lg:max-w-3xl   /* 🔥 lebih kecil */
+    bg-[#0a0f1f]/90 
+    border border-white/10 
+    rounded-2xl md:rounded-3xl 
+    overflow-hidden shadow-2xl
+  "
+        initial={{ scale: 0.85, opacity: 0, y: 40 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.85, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 180, damping: 20 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* CLOSE */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-20 bg-white/10 hover:bg-red-500/20 backdrop-blur-md p-2 sm:p-3 rounded-full border border-white/20 transition"
+        >
+          <FaTimes className="text-white text-sm sm:text-base" />
+        </button>
+
+        {/* ================= SLIDER ================= */}
+        <div className="
+  relative w-full 
+  h-[180px] sm:h-[220px] md:h-[280px] lg:h-[320px]   /* 🔥 lebih pendek */
+  bg-black overflow-hidden
+">
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={currentIndex}
+              className="absolute w-full h-full"
+              custom={direction}
+              initial={{ x: direction > 0 ? 200 : -200, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: direction > 0 ? -200 : 200, opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.7}
+              onDragEnd={(e, { offset, velocity }) => {
+                const swipe = Math.abs(offset.x) * velocity.x;
+                if (swipe < -swipeConfidenceThreshold) paginate(1);
+                else if (swipe > swipeConfidenceThreshold) paginate(-1);
+              }}
+            >
+              {media[currentIndex]?.type === "video" ? (
+                <video
+                  src={media[currentIndex].src}
+                  controls
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={media[currentIndex]?.src}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* 🔥 MODERN ARROW */}
+          {media.length > 1 && (
+            <>
+              <button
+                onClick={() => paginate(-1)}
+                className="
+                  hidden md:flex
+                  absolute left-4 top-1/2 -translate-y-1/2
+                  w-11 h-11 items-center justify-center
+                  rounded-full
+                  bg-white/10 backdrop-blur-lg
+                  border border-white/20
+                  hover:bg-orange-500/30 hover:scale-110
+                  transition-all duration-300
+                  shadow-lg
+                "
+              >
+                <span className="text-white text-xl">‹</span>
+              </button>
+
+              <button
+                onClick={() => paginate(1)}
+                className="
+                  hidden md:flex
+                  absolute right-4 top-1/2 -translate-y-1/2
+                  w-11 h-11 items-center justify-center
+                  rounded-full
+                  bg-white/10 backdrop-blur-lg
+                  border border-white/20
+                  hover:bg-orange-500/30 hover:scale-110
+                  transition-all duration-300
+                  shadow-lg
+                "
+              >
+                <span className="text-white text-xl">›</span>
+              </button>
+            </>
+          )}
+
+          {/* DOT */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+            {media.map((_, i) => (
+              <div
+                key={i}
+                onClick={() =>
+                  setCurrentIndex([i, i > currentIndex ? 1 : -1])
+                }
+                className={`rounded-full cursor-pointer transition ${
+                  i === currentIndex
+                    ? "bg-orange-400 w-3 h-3 scale-125"
+                    : "bg-white/40 w-2 h-2"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* 🔥 THUMBNAIL PREVIEW (NEW) */}
+        {media.length > 1 && (
+          <div className="px-3 py-2 bg-black/40 backdrop-blur-md flex gap-2 overflow-x-auto scrollbar-hide">
+  {media.map((item, i) => (
+    <div
+      key={i}
+      onClick={() =>
+        setCurrentIndex([i, i > currentIndex ? 1 : -1])
+      }
+      className={`
+        relative min-w-[60px] sm:min-w-[70px] md:min-w-[80px]
+        h-[45px] sm:h-[50px] md:h-[55px]   /* 🔥 lebih kecil */
+        rounded-md overflow-hidden cursor-pointer
+        border transition
+        ${
+          i === currentIndex
+            ? "border-orange-400 scale-105"
+            : "border-white/10 opacity-60 hover:opacity-100"
+        }
+      `}
+    >
+                {item.type === "video" ? (
+                  <video
+                    src={item.src}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={item.src}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ================= CONTENT ================= */}
+        <div className="p-4 sm:p-5 md:p-6 text-white space-y-3">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-orange-300">
+            {project.title}
+          </h2>
+
+          <p className="text-xs sm:text-sm md:text-base text-slate-300 leading-relaxed">
+            {project.description}
+          </p>
+
+          <div className="flex flex-wrap gap-2 mt-2">
+            {project.tech.map((t, i) => (
+              <span
+                key={i}
+                className="text-[10px] sm:text-xs md:text-sm px-2 py-1 bg-orange-900/60 border border-orange-700/30 rounded-full"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+
+          <div className="pt-3">
+            <a
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm md:text-base bg-gradient-to-r from-orange-500 to-red-500 rounded-full font-semibold hover:scale-105 transition"
+            >
+              <FaGithub />
+              View Source
+            </a>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
 // ===================================
 // KOMPONEN KARTU PROYEK
 // ===================================
-const ProjectCard = ({ project }) => {
-    const techIcons = {
+const ProjectCard = ({ project, onClick }) => {
+  const techIcons = {
     "Next.js": <SiNextdotjs />, "React": <FaReact />, "TailwindCSS": <SiTailwindcss />,
     "Laravel": <FaLaravel />, "Node.js": <FaNodeJs />, "Express": <SiExpress />, 
     "MongoDB": <SiMongodb />, "JWT": "🔑", "Figma": <FaFigma />, "Mysql": <SiMysql />
     };
-
-    return (
-    <a href={project.link} target="_blank" rel="noopener noreferrer"
-        className="group relative h-64 sm:h-72 rounded-2xl overflow-hidden transition-shadow duration-300 hover:shadow-lg hover:shadow-orange-500/30"
-        style={{ background: `url('${project.image}') center/cover no-repeat`, cursor: 'pointer' }}
+    const thumbnail =
+  project.media?.find((m) => m.type === "image")?.src ||
+  "/fallback.jpg"; // optional fallback
+  return (
+    <motion.div
+      layout
+      onClick={() => onClick(project)}
+      whileHover={{ scale: 1.03 }}
+      className="group relative h-64 sm:h-72 rounded-2xl overflow-hidden cursor-pointer"
     >
-        <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors duration-300 flex flex-col justify-between p-4 sm:p-6 text-white">
+
+<div
+  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+  style={{ backgroundImage: `url(${thumbnail})` }}
+/>
+
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300 flex flex-col justify-between p-5 text-white">
+        
         <div>
-            <h3 className="text-lg sm:text-xl font-bold text-orange-300">{project.title}</h3>
-            <p className="text-slate-300 mt-2 text-xs sm:text-sm leading-relaxed">{project.description}</p>
+          <h3 className="text-xl font-bold text-orange-300">
+            {project.title}
+          </h3>
+          <p className="text-sm text-slate-300 mt-2 line-clamp-2">
+            {project.description}
+          </p>
         </div>
-        <div className="flex items-end justify-between">
-            <div className="flex flex-wrap gap-2 mt-4">
+
+        <div className="flex justify-between items-end">
+          <div className="flex flex-wrap gap-2">
             {project.tech.map((t, i) => (
-                <span key={i} className="flex items-center gap-1 text-xs font-mono px-2 py-1 rounded-full bg-orange-900/70 text-orange-200 border border-orange-800/30 backdrop-blur-sm">
-                {techIcons?.[t] || t}
-                </span>
+              <span
+                key={i}
+                className="text-xs px-2 py-1 bg-orange-900/60 rounded-full border border-orange-700/30"
+              >
+                {t}
+              </span>
             ))}
-            </div>
-            <FaExternalLinkAlt className="text-slate-300 group-hover:text-orange-200 transition-colors duration-300" />
+          </div>
+
+          <FaExternalLinkAlt className="opacity-70 group-hover:opacity-100" />
         </div>
-        </div>
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="absolute inset-0 rounded-2xl border border-orange-300/10 pointer-events-none"></div>
-    </a>
-    );
+      </div>
+
+      {/* Glow border */}
+      <div className="absolute inset-0 rounded-2xl border border-orange-400/10 group-hover:border-orange-400/40 transition-all" />
+    </motion.div>
+  );
 };
 
 // ===================================
@@ -297,6 +612,7 @@ function ProjectSection() {
   const [activeTab, setActiveTab] = useState('Projects');
   const [projectCategory, setProjectCategory] = useState('Web/Apps');
   const [previewCertificate, setPreviewCertificate] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
   const { hideNavbar, showNavbar } = useNavbar();
 
   // === CHANGE START: State dan konstanta untuk Show More/Less ===
@@ -305,12 +621,12 @@ function ProjectSection() {
   // === CHANGE END ===
 
   useEffect(() => {
-    if (previewCertificate) {
-      hideNavbar();
-    } else {
-      showNavbar();
-    }
-  }, [previewCertificate, hideNavbar, showNavbar]);
+  if (previewCertificate || selectedProject) {
+    hideNavbar();
+  } else {
+    showNavbar();
+  }
+}, [previewCertificate, selectedProject, hideNavbar, showNavbar]);
 
   useEffect(() => {
     return () => {
@@ -416,7 +732,9 @@ function ProjectSection() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredProjects.length > 0 ? (
-                      filteredProjects.map((p, i) => <ProjectCard key={i} project={p} />)
+                      filteredProjects.map((p, i) => (
+  <ProjectCard key={i} project={p} onClick={setSelectedProject} />
+))
                     ) : (
                       <div className="col-span-full text-center text-slate-400 py-12">No projects in this category yet.</div>
                     )}
@@ -490,6 +808,14 @@ function ProjectSection() {
           />
         )}
       </AnimatePresence>
+      <AnimatePresence>
+  {selectedProject && (
+    <ProjectModal
+      project={selectedProject}
+      onClose={() => setSelectedProject(null)}
+    />
+  )}
+</AnimatePresence>
     </section>
   );
 }
